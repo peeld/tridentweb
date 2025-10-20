@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-5">
+        <h1 class="title has-text-centered">Login</h1>
+
+        {% if form.errors %}
+          <div class="notification is-danger has-text-centered">
+            Invalid username or password. Please try again.
+          </div>
+        {% endif %}
+
+        <div class="box">
+          <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <!-- Username -->
+            <div class="field">
+              <label class="label">Username</label>
+              <div class="control has-icons-left">
+				{{ form.username|add_class:"input"|attr:"placeholder:Enter your username" }}
+                <span class="icon is-small is-left">
+                  <i class="fas fa-user"></i>
+                </span>
+              </div>
+              {{ form.username.errors }}
+            </div>
+
+            <!-- Password -->
+            <div class="field">
+              <label class="label">Password</label>
+              <div class="control has-icons-left">
+                {{ form.password|add_class:"input"|attr:"placeholder:Enter your password" }}
+
+                <span class="icon is-small is-left">
+                  <i class="fas fa-lock"></i>
+                </span>
+              </div>
+              {{ form.password.errors }}
+            </div>
+
+            <!-- Submit -->
+            <div class="field mt-5">
+              <div class="control">
+                <button type="submit" class="button is-primary is-fullwidth">
+                  <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+                  <span>Login</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Extra links -->
+        <div class="has-text-centered mt-4">
+          <p><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
+          <p><a href="{% url 'register' %}">Need an account? Register here</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

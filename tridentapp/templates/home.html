@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block content %}
+
+
+<section class="hero is-dark is-bold" style="background-image: url('https://mocapschool.com/static/bg2.png');  background-size: 100% auto; background-repeat: no-repeat; ">
+	<div class="hero-body">
+		<div class="container has-text-centered">
+			<h1 class="title is-1">Trident Motion Capture Lab</h1>
+			<h2 class="subtitle is-5">Hollywood’s Hub for Innovation, Education & Production in Motion Capture</h2>
+					<p>Join our monthly meetups where industry pros, students, and innovators connect, share ideas, and experience 	the latest breakthroughs in performance capture.</p>
+		<p class="mt-4">Attend in person by invite or join us online from anywhere in the world.</p>
+
+		</div>
+	</div>
+</section>
+
+<section class="section">
+	<div class="container">
+		<div class="columns">
+			<div class="column is-half">
+				<div class="box">
+				
+					<h2 class="title is-4">Upcoming Events</h2>
+
+	{% if events %}
+            {% for event in events %}
+ 					<p class="is-size-5"><strong>📅 Date:</strong> {{ event.date|date:"F" }} {{ event.date|date:"j"|ordinal }}</p>
+					<p class="is-size-5"><strong>🕔 Time:</strong> {{ event.date|date:"H:i a" }} Pacific Time </p>
+
+					<p class="mt-4">Get ready for an exciting <strong>live-streamed event</strong> you won’t want to miss!
+						Join us on <strong>{{ event.date|date:"F" }} {{ event.date|date:"j"|ordinal }} at {{ event.date|date:"H:ia" }}</strong> for an exclusive experience—streamed live,
+						directly to you. No downloads, no sign-ups—just show up and enjoy!</p>
+
+					<div class="notification mt-2">
+						<p class="has-text-weight-bold">🔹 What to Expect:</p>
+						<ul class="ml-4 mt-2">
+							<li>✅ Live Stream Motion Capture</li>
+							<li>✅ Latest Virtual Camera R&D showcase</li>
+							<li>✅ Exclusive content, insights & announcements</li>
+						</ul>
+					</div>
+
+					<p class="mt-4 has-text-centered">
+						<strong>🎉 Register below, mark your calendar, invite your friends, and we’ll see you live on {{ event.date|date:"F" }} {{ event.date|date:"j"|ordinal }}!</strong>
+					</p>
+
+					<p class="mt-4 has-text-centered">
+						Ticket Price: ${{event.price}}
+					</p>
+
+					<a href="{% url 'purchase_event' event_id=event.id %}">
+						<button class="button is-default">Purchase</button>
+					</a>
+
+
+
+
+            {% endfor %}
+    {% endif %}
+						
+
+				</div> <!-- box -->
+			</div>
+			<div class="column is-half">
+				<img src="https://mocapschool.com/static/improv.png">
+			</div> <!-- cols -->
+		</div> <!-- cols -->		
+ 	</div> <!-- container -->
+</section>
+
+    
+<section class="section">
+	<div class="container">
+		<div class="columns">
+			<div class="column is-one-third has-text-centered">
+				<div class="card">
+				   <div class="card-image">
+					 <figure class="image is-4by3">
+						<img
+							src="https://mocapschool.com/static/msh.png"
+							alt="Mocap School Hollywood Logo"
+						/>
+					</figure>
+					</div>
+					<div class="card-content">
+						<h3 class="title is-4">Mocap School Hollywood</h3>
+						<p>Hands-on training for motion capture artists, performers, and technicians.</p>
+						<p class="title is-5 mt-5"><a href="https://www.mocapschoolhollywood.com/">🔗 link</a></p>
+					</div>
+				</div>
+			</div>
+			
+			<div class="column is-one-third has-text-centered">
+				<div class="card">
+				   <div class="card-image">
+					 <figure class="image is-4by3">
+						<img
+							src="https://mocapschool.com/static/18e.png"
+							alt="18th Edition Logo '18E'"
+						/>
+					</figure>
+					</div>
+					<div class="card-content">
+						<h3 class="title is-4">18th Edition</h3>
+						<p>Full-service production for motion capture, virtual production, and digital performances.</p>
+						<P class="title is-5 mt-5"><a href="https://18th-edition-mocap.com/">🔗 link</a></p>
+					</div>
+				</div>
+			</div>
+			
+			<div class="column is-one-third has-text-centered">
+				<div class="card">
+				   <div class="card-image">
+					 <figure class="image is-4by3">
+						<img
+							src="https://mocapschool.com/static/pd.png"
+							alt="PeelDev Logo 'PD'"
+						/>
+					</figure>
+					</div>
+					<div class="card-content">
+						<h3 class="title is-4">Peel Software Development</h3>
+						<p>Innovating and refining motion capture technology.</p>
+						<p class="title is-5 mt-5"><a href="https://peeldev.com">🔗 link</a></p>
+					</div>
+				</div>
+			</div>			
+			
+		</div>
+	</div>
+</section>
+    
+<section class="section is-light">
+	<div class="container">
+		<div class="columns is-vcentered is-align-items-start">
+			<div class="column">
+			<div class="box">
+		<h2 class="title is-3 has-text-centered">Exploring the Future of Motion Capture</h2>
+		<p class="has-text-centered">We are constantly experimenting with new tools, workflows, and best practices to push the boundaries of motion capture. From rapid content creation and AI-powered tools to cutting-edge virtual production techniques, our goal is to innovate and evolve the industry.</p>
+			</div>
+			</div>
+			<div class="column has-text-centered">
+				<figure class="image is-4by3">
+					<img src="https://mocapschool.com/static/MAVCam.jpg" alt="Meetup event at Trident Motion Capture Lab">
+				</figure>
+			</div>
+			</div>
+	</div>
+</section>
+
+<section class="section is-dark has-text-centered">
+	<div class="container">
+		<h2 class="title is-3">Let’s Build the Future of Motion Capture</h2>
+		<p>Whether you're here to train, shoot, or innovate, Trident Motion Capture Lab is the place to bring your ideas to life.</p>
+	</div>
+</section>
+	
+<section class="section">
+	<div class="container">
+	
+	<script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/embed/v2.js"></script>
+	<script>
+	  hbspt.forms.create({
+		portalId: "47279932",
+		formId: "af0e04d9-8c40-4408-b687-e9621acbaba1",
+		region: "na1"
+	  });
+	</script>
+
+	</div>
+</section>
+
+{% endblock %}
+

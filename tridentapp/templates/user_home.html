@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">Welcome, {{ user.username }}!</h1>
+
+<p>Here are your account options:</p>
+<ul>
+  <li class="ml-4 mt-4"><a href="{% url 'password_change' %}">Change Password</a></li>
+  <li class="ml-4 mt-4"><a href="{% url 'password_reset' %}">Reset Password</a></li>
+</ul>
+
+
+
+<h1 class="title mt-6">My Purchases</h1>
+<ul>
+  {% for product in products %}
+    <li>{{ product.product_name }} – ${{ product.price }}</li>
+  {% empty %}
+    <li>You haven’t purchased anything yet.</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

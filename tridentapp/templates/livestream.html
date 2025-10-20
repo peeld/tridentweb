@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block headings %}
+<style>
+        #countdown {
+            font-family: "Courier New", monospace;
+            font-size: 48px;
+            font-weight: bold;
+            margin-top: 20px;
+            display: inline-block;
+            background: black;
+            color: lime;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+		    .video-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        height: 0;
+        overflow: hidden;
+    }
+
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+{% if next_livestream %}
+<script>
+	document.addEventListener("DOMContentLoaded", function() {
+
+		const redirectTime = new Date("{{ next_livestream.redirect_time }}");
+		const livestreamURL = "{{ next_livestream.url }}";
+
+		function updateCountdown() {
+			const now = new Date();
+			const timeDiff = redirectTime - now;
+
+			if (timeDiff <= 0) {
+				// Redirect when countdown reaches zero
+				window.location.href = livestreamURL;
+				return;
+			}
+
+			// Calculate hours, minutes, and seconds
+			const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+			const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+			const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+			// Format time with leading zeros
+			document.getElementById("countdown").textContent =
+				String(hours).padStart(2, "0") + ":" +
+				String(minutes).padStart(2, "0") + ":" +
+				String(seconds).padStart(2, "0");
+
+			// Update every second
+			setTimeout(updateCountdown, 1000);
+		}
+
+		updateCountdown();
+	});
+</script>
+{% endif %}
+	
+{% endblock %}
+
+{% block content %}
+
+{% if current_livestream %}
+<section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-10">
+                <div id="livestream" class="video-container">
+                    <iframe
+                        src="{{ current_livestream.url }}?autoplay=1"
+                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+   
+{% else %}
+
+{% if next_livestream %}
+
+    <section class="section">
+        <div class="container has-text-centered">
+
+        <h2 class="title is-3">{{ next_livestream.title }}</h2>
+            <BR>
+
+		<IMG SRC="https://mocapschool.com/static/tv.png">
+
+		    <h1>Live stream starts at {{ next_livestream.redirect_time }}</h1>
+
+            {% if next_livestream.starts_in %}
+
+           <div id="countdown">00:00:00</div>
+
+            {% endif %}
+
+		</div>
+	</section>
+
+{% endif %}
+
+{% endif %}
+
+    <section class="section">
+        <div class="container has-text-centered ">
+			<A HREF="https://discord.gg/YDdKqMs3"><IMG style="padding: 20px; vertical-align: middle;" SRC="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/66e3d74e9607e61eeec9c91b_Logo.svg"></A>
+			<A HREF="https://discord.gg/TJJ7rk8e7S">Join the PeelDev discord channel </A>
+		</div>
+    </section>
+	
+	<section class="section">
+        <div class="container has-text-centered">
+		<h2 class="title is-3">Past Events</h2>
+		<hr />
+
+    {% if livestreams %}
+            {% for livestream in livestreams %}
+               {% if livestream.url %}
+            <h3 class="title is-4">{{ livestream.date|date:"Y-m-d" }} - {{ livestream.title }}</h3>
+            <iframe width="560" height="315" src="{{ livestream.url }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            <hr />
+               {% endif %}
+
+            {% endfor %}
+    {% endif %}
+
+
+{% endblock %}
+

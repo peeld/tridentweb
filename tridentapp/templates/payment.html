@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <h1 class="title has-text-centered">Make a payment</h1>
+        <p class="subtitle has-text-centered">Enter your payment details below</p>
+
+        <div class="box">
+		
+<form id="payment-form">
+
+
+
+  <div class="field">
+    <label class="label">Item</label>
+    <div class="control">
+      {{ item_name }}
+    </div>
+  </div>
+
+
+  <div class="field">
+    <label class="label">Amount</label>
+    <div class="control">
+      <input id="amount" class="input is-static" type="text" value="{{ amount_display }}" readonly>
+    </div>
+    <p class="help">This is the total that will be charged.</p>
+  </div>
+  
+  <!-- Cardholder Name -->
+  <div class="field">
+    <label class="label">Cardholder Name</label>
+    <div class="control">
+      <input id="cardholder-name" class="input" type="text" placeholder="Jane Doe" required>
+    </div>
+  </div>
+
+  <!-- Card Number -->
+  <div class="field">
+    <label class="label">Card Number</label>
+    <div class="control">
+      <div id="card-number-element" class="input"></div>
+    </div>
+  </div>
+
+  <!-- Expiry and CVC side by side -->
+  <div class="field is-horizontal">
+    <div class="field-body">
+      <div class="field">
+        <label class="label">Expiration Date</label>
+        <div class="control">
+          <div id="card-expiry-element" class="input"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">CVC</label>
+        <div class="control">
+          <div id="card-cvc-element" class="input"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Postal Code -->
+  <div class="field">
+    <label class="label">Postal Code</label>
+    <div class="control">
+      <div id="card-postal-element" class="input"></div>
+    </div>
+  </div>
+
+
+  {% comment %}
+
+  {% if user.is_authenticated %}
+  
+  <!-- Save for future use -->
+  <div class="field mt-4">
+    <div class="control">
+      <label class="checkbox">
+        <input type="checkbox" id="save-card" name="save_card">
+        Save this card for future use
+      </label>
+    </div>
+
+
+  </div>
+
+  {% endif %}
+
+  {% endcomment %}
+
+  <div class="field mt-4">
+      <p class="help">Your card details are securely processed by Stripe and never stored on our servers.</p>
+  </div>
+
+  <!-- Submit button -->
+  <div class="field is-grouped is-grouped-right mt-4">
+    <div class="control">
+      <button id="submit" class="button is-primary">
+        <span class="icon">
+          <i class="fas fa-credit-card"></i>
+        </span>
+        <span>Submit Payment</span>
+      </button>
+    </div>
+  </div>
+
+</form>
+
+          <!-- Message area -->
+          <div id="payment-message" class="notification is-hidden mt-4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  const stripe = Stripe("{{ STRIPE_PUBLISHABLE_KEY }}");
+  const elements = stripe.elements();
+
+  const cardElement = elements.create("card");
+  cardElement.mount("#card-element");
+
+  const form = document.getElementById("payment-form");
+  const messageDiv = document.getElementById("payment-message");
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const {error, paymentIntent} = await stripe.confirmCardPayment(
+      "{{ client_secret }}",
+      {
+        payment_method: {
+          card: cardElement,
+        }
+      }
+    );
+
+    if (error) {
+      messageDiv.textContent = error.message;
+      messageDiv.className = "has-text-danger";
+    } else if (paymentIntent && paymentIntent.status === "succeeded") {
+      messageDiv.textContent = "Payment successful!";
+      messageDiv.className = "has-text-success";
+    }
+  });
+</script>
+{% endblock %}

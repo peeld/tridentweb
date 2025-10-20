@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <div class="notification is-info has-text-centered">
+          <h1 class="title is-4">Confirm Your Email</h1>
+          <p class="subtitle is-6">
+            Thank you for registering! We’ve sent a confirmation link to your email address.  
+            Please click the link to activate your account.
+          </p>
+        </div>
+
+        <div class="has-text-centered mt-4">
+          <a href="{% url 'login' %}" class="button is-primary">
+            <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+            <span>Back to Login</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

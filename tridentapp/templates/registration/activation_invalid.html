@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <div class="notification is-danger has-text-centered">
+          <h1 class="title is-4">Activation Link Invalid</h1>
+          <p class="subtitle is-6">
+            Sorry, this activation link is invalid or has already been used.
+          </p>
+        </div>
+
+        <div class="has-text-centered mt-4">
+          <a href="{% url 'register' %}" class="button is-link is-light">
+            <span class="icon"><i class="fas fa-user-plus"></i></span>
+            <span>Register Again</span>
+          </a>
+          <a href="{% url 'login' %}" class="button is-primary ml-2">
+            <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+            <span>Login</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

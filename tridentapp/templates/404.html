@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="container has-text-centered">
+    <h1 class="title is-3">Page Not Found</h1>
+    <p class="subtitle is-6">The page you requested could not be found.</p>
+    <a href="{% url 'home' %}" class="button is-primary">Go Home</a>
+  </div>
+</section>
+{% endblock %}
