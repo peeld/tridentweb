@@ -10,6 +10,15 @@
 </ul>
 
 
+<h1 class="title mt-6">Event Tickets</h1>
+<ul>
+  {% for event in events %}
+  <li>{{ event.title }} – {{ event.date }} - ${{ event.price }}</li>
+  {% empty %}
+    <li>You haven’t purchased anything yet.</li>
+  {% endfor %}
+</ul>
+
 
 <h1 class="title mt-6">My Purchases</h1>
 <ul>

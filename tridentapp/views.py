@@ -44,7 +44,8 @@ def home(request):
 @login_required
 def user_home(request):
     products = request.user.purchased_products.all()
-    return render(request, "user_home.html", {"products": products})
+    events = request.user.purchased_events.all()
+    return render(request, "user_home.html", {"products": products, "events": events})
 
 
 def register(request):
@@ -292,27 +293,40 @@ def stripe_webhook(request):
     # Handle the event types you care about
     if event["type"] == "payment_intent.succeeded":
         intent = event["data"]["object"]
-        product_id = intent["metadata"].get("product_id")
         user_id = intent["metadata"].get("user_id")
 
-        try:
-            product = Product.objects.get(pk=product_id)
-        except Product.DoesNotExist:
-            return HttpResponse(status=200)
-
-        # Assign product to the user (ManyToMany example)
-        if user_id:
-            from django.contrib.auth.models import User
+        # Product
+        product_id = intent["metadata"].get("product_id")
+        if product_id:
             try:
-                user = User.objects.get(pk=user_id)
-                product.purchasers.add(user)
-            except User.DoesNotExist:
-                pass
+                product = Product.objects.get(pk=product_id)
+            except Product.DoesNotExist:
+                return HttpResponse(status=200)
 
-        # Optionally decrement stock
-        if product.units > 0:
-            product.units -= 1
-            product.save()
+            # Assign product to the user (ManyToMany example)
+            if user_id:
+                try:
+                    user = User.objects.get(pk=user_id)
+                    product.purchasers.add(user)
+                except User.DoesNotExist:
+                    pass
+
+        # Event
+        event_id = intent["metadata"].get("event")
+        if event_id:
+            try:
+                event = Event.objects.get(pk=event_id)
+            except Event.DoesNotExist:
+                return HttpResponse(status=200)
+
+            # Assign event to user
+            if user_id:
+                try:
+                    user = User.objects.get(pk=user_id)
+                    event.purchasers.add(user)
+                except User.DoesNotExist:
+                    pass
+
 
     elif event["type"] == "payment_intent.payment_failed":
         intent = event["data"]["object"]

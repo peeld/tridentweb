@@ -15,10 +15,11 @@ import os.path
 import socket
 
 try:
-    from .secrets import STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
+    from .secrets import STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
 except ImportError:
     STRIPE_PUBLISHABLE_KEY = None
     STRIPE_SECRET_KEY = None
+    STRIPE_WEBHOOK_SECRET = None
 
 try:
     from .secrets import SES_MOCAPSCHOOL_KEY, SES_MOCAPSCHOOL_SECRET, SES_MOCAPSCHOOL_REGION
@@ -30,7 +31,7 @@ except ImportError:
 
 hostname = socket.gethostname()
 is_debug = hostname in ["MSI", "DESKTOP-AHM435B"]
-#is_debug = 1
+is_debug = 1
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
