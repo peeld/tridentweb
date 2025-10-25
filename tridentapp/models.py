@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.conf import settings
 
 class Event(models.Model):
     """ Event tickets can be purchased to be attended on a specific date """
@@ -26,4 +26,14 @@ class Product(models.Model):
         return self.product_name
 
 
+class Customer(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="stripe_customer"
+    )
+    stripe_customer_id = models.CharField(max_length=255, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.user.username} ({self.stripe_customer_id})"

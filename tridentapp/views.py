@@ -1,5 +1,3 @@
-
-
 from django.utils import timezone
 from django.utils.timezone import now
 from django.conf import settings
@@ -7,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
@@ -16,13 +15,25 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .forms import RegisterForm
 from .forms import SESEmailPasswordResetForm
-from .models import Event, Product
+from .models import Event, Product, Customer
 
 import pytz
 import stripe
 import boto3
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+def get_or_create_stripe_customer(user):
+    customer_obj, created = Customer.objects.get_or_create(user=user)
+    if created or not customer_obj.stripe_customer_id:
+        stripe_customer = stripe.Customer.create(
+            email=user.email,
+            name=user.get_full_name() or user.username,
+        )
+        customer_obj.stripe_customer_id = stripe_customer.id
+        customer_obj.save()
+    return customer_obj.stripe_customer_id
 
 
 def home(request):
@@ -187,18 +198,46 @@ def purchase_product(request, product_id):
 
 
 def purchase_event(request, event_id):
-    # Get the product or return 404 if not found
     event = get_object_or_404(Event, pk=event_id)
 
-    # Convert price (Decimal) to integer cents
     amount_cents = int(event.price * 100)
     amount_display = f"${event.price:.2f}"
 
-    # Create a Stripe PaymentIntent
+    if request.user.is_authenticated:
+        customer_id = get_or_create_stripe_customer(request.user)
+    else:
+        customer_id = None
+
+    # Check if user posted "save_card" in the form (via JS or fallback POST)
+    save_card = request.POST.get("save_card") == "on"
+
+    # Determine setup behavior
+    setup_future_usage = "off_session" if (request.user.is_authenticated and save_card) else None
+
+    # If user chooses to log in from this page (POST form with username/password)
+    if request.method == "POST" and "login" in request.POST:
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect("purchase_event", event_id=event_id)
+        else:
+            return render(request, "payment.html", {
+                "login_error": "Invalid credentials",
+                "STRIPE_PUBLISHABLE_KEY": settings.STRIPE_PUBLISHABLE_KEY,
+                "amount_display": amount_display,
+                "item_name": event.title,
+                "client_secret": None,
+            })
+
+    # Create a Stripe PaymentIntent for both guest and logged-in user
     intent = stripe.PaymentIntent.create(
         amount=amount_cents,
         currency="usd",
+        customer=customer_id,
         automatic_payment_methods={"enabled": True},
+        setup_future_usage=setup_future_usage,
         metadata={
             "event": event.id,
             "user_id": request.user.id if request.user.is_authenticated else None,
@@ -210,6 +249,7 @@ def purchase_event(request, event_id):
         "STRIPE_PUBLISHABLE_KEY": settings.STRIPE_PUBLISHABLE_KEY,
         "amount_display": amount_display,
         "item_name": event.title,
+        "user": request.user,
     })
 
 
