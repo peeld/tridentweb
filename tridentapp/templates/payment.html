@@ -208,7 +208,7 @@
       messageDiv.textContent = error.message;
       messageDiv.className = "has-text-danger";
     } else if (paymentIntent && paymentIntent.status === "succeeded") {
-      window.location.href = "/payment/confirmation/?intent=${paymentIntent.id}`";
+      window.location.href = `/payment/confirmation/?intent=${paymentIntent.id}`;
     }
   });
 </script>
