@@ -312,6 +312,12 @@ def stripe_webhook(request):
     return HttpResponse(status=200)
 
 
+def payment_confirmation(request):
+    intent_id = request.GET.get("intent")
+    # Optionally show payment details here
+    return render(request, "payment_confirmation.html", {"intent_id": intent_id})
+
+
 def handler404(request, exception=None):
     def collect(urls):
         patterns = []
