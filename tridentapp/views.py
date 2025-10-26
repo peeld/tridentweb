@@ -332,11 +332,17 @@ def recalculate_event(request, event_id):
     # Base price
     price = event.price * qty
     discount = 0
+    message = ""
 
     # Apply promo if valid for this event
-    if event.promo_code and promo == event.promo_code.upper():
-        discount = Decimal(event.promo_discount) / Decimal(100)
-        price = price * (Decimal(1) - discount)
+    if event.promo_code:
+        if promo == event.promo_code.upper():
+            discount = Decimal(event.promo_discount) / Decimal(100)
+            price = price * (Decimal(1) - discount)
+            message = f"{discount}% discount applied"
+        else:
+            message = "Invalid code"
+
 
     # Convert to cents for Stripe
     amount_cents = int(price * 100)
@@ -358,7 +364,7 @@ def recalculate_event(request, event_id):
         "discount": discount,
         "amount_display": f"${price:.2f}",
         "client_secret": intent.client_secret,
-        "message": f"{discount}% discount applied." if discount else "No discount applied.",
+        "message": message
     })
 
 
