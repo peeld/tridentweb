@@ -182,6 +182,12 @@
   const form = document.getElementById("payment-form");
   const messageDiv = document.getElementById("payment-message");
 
+  {% if user.is_authenticated %}
+  const email = "{{ user.email }}";
+  {% else %}
+  const email = document.getElementById("email").value;
+  {% endif %}
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -190,6 +196,10 @@
       {
         payment_method: {
           card: cardNumber,
+          billing_details: {
+            name: document.getElementById("cardholder-name").value,
+            email: email,
+      },
         }
       }
     );
