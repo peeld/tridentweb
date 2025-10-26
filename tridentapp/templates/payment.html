@@ -182,14 +182,14 @@
   const form = document.getElementById("payment-form");
   const messageDiv = document.getElementById("payment-message");
 
-  {% if user.is_authenticated %}
-  const email = "{{ user.email }}";
-  {% else %}
-  const email = document.getElementById("email").value;
-  {% endif %}
-
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+
+    {% if user.is_authenticated %}
+    const email = "{{ user.email }}";
+    {% else %}
+    const email = document.getElementById("email").value;
+    {% endif %}
 
     const {error, paymentIntent} = await stripe.confirmCardPayment(
       "{{ client_secret }}",
