@@ -15,7 +15,7 @@ from django.http import JsonResponse
 from .forms import RegisterForm
 from .forms import SESEmailPasswordResetForm
 from .models import Event, Product, Customer
-from .utils import send_new_account_email, send_purchase_email
+from .utils import send_new_account_email, send_purchase_email, send_admin_email
 
 import pytz
 import stripe
@@ -264,6 +264,8 @@ def stripe_webhook(request):
     if event["type"] == "payment_intent.succeeded":
         intent = event["data"]["object"]
         user_id = intent["metadata"].get("user_id")
+        quantity = intent["metadata"].get("quantity")
+        charges = intent.get("charges", {}).get("data", [])
 
         # Product
         product_id = intent["metadata"].get("product_id")
@@ -290,24 +292,26 @@ def stripe_webhook(request):
                 return HttpResponse(status=200)
 
             email = None
+            name = None
+
             # Assign event to user
             if user_id:
                 try:
                     user = User.objects.get(pk=user_id)
+                    name = user.name
                     email = user.email
                     event.purchasers.add(user)
                 except User.DoesNotExist:
                     pass
             else:
-                charges = intent.get("charges", {}).get("data", [])
                 if charges:
                     email = charges[0].get("billing_details", {}).get("email")
-                else:
-                    email = None
+                    name = charges[0].get("billing_details", {}).get("name")
 
             if email:
                 send_purchase_email(email, f"{event.title} {event.date}")
 
+            send_admin_email("New Event Purchase", f"{event.title} {quantity} {email} {name} ")
 
     elif event["type"] == "payment_intent.payment_failed":
         intent = event["data"]["object"]
@@ -342,7 +346,6 @@ def recalculate_event(request, event_id):
             message = f"{discount}% discount applied"
         else:
             message = "Invalid code"
-
 
     # Convert to cents for Stripe
     amount_cents = int(price * 100)

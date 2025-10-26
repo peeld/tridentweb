@@ -51,3 +51,7 @@ def send_new_account_email(user):
 def send_purchase_email(email, title):
     body_text = render_to_string("purchase_ok.txt", {'title': title})
     send_email(email, "Purchase ok", body_text)
+
+
+def send_admin_email(subject, message):
+    send_email("al@peeldev.com", subject, message)
