@@ -335,8 +335,8 @@ def recalculate_event(request, event_id):
     message = ""
 
     # Apply promo if valid for this event
-    if event.promo_code:
-        if promo == event.promo_code.upper():
+    if promo:
+        if event.promo_code and promo == event.promo_code.upper():
             discount = Decimal(event.promo_discount) / Decimal(100)
             price = price * (Decimal(1) - discount)
             message = f"{discount}% discount applied"
