@@ -19,7 +19,7 @@ from .utils import send_new_account_email, send_purchase_email
 
 import pytz
 import stripe
-
+from decimal import Decimal
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -335,8 +335,8 @@ def recalculate_event(request, event_id):
 
     # Apply promo if valid for this event
     if event.promo_code and promo == event.promo_code.upper():
-        discount = event.promo_discount
-        price = price * (1 - discount / 100)
+        discount = Decimal(event.promo_discount) / Decimal(100)
+        price = price * (Decimal(1) - discount)
 
     # Convert to cents for Stripe
     amount_cents = int(price * 100)
