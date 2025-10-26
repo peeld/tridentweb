@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 from .forms import RegisterForm
 from .forms import SESEmailPasswordResetForm
@@ -165,8 +166,11 @@ def purchase_product(request, product_id):
 def purchase_event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
 
-    amount_cents = int(event.price * 100)
-    amount_display = f"${event.price:.2f}"
+    quantity = int(request.POST.get("quantity", 1))
+    promo_code = int(request.POST.get("promo", 1))
+
+    amount_cents = int(event.price * quantity * 100)
+    amount_display = f"${event.price * quantity:.2f}"
 
     if request.user.is_authenticated:
         customer_id = get_or_create_stripe_customer(request.user)
@@ -192,6 +196,7 @@ def purchase_event(request, event_id):
                 "login_error": "Invalid credentials",
                 "STRIPE_PUBLISHABLE_KEY": settings.STRIPE_PUBLISHABLE_KEY,
                 "amount_display": amount_display,
+                "quantity": quantity,
                 "item_name": event.title,
                 "client_secret": None,
             })
@@ -206,15 +211,16 @@ def purchase_event(request, event_id):
         metadata={
             "event": event.id,
             "user_id": request.user.id if request.user.is_authenticated else None,
+            "promo_code": promo_code,
         },
     )
 
     return render(request, "payment.html", {
         "client_secret": intent.client_secret,
         "STRIPE_PUBLISHABLE_KEY": settings.STRIPE_PUBLISHABLE_KEY,
-        "amount_display": amount_display,
-        "item_name": event.title,
         "user": request.user,
+        "amount_display": amount_display,
+        "event": event
     })
 
 
@@ -316,6 +322,44 @@ def payment_confirmation(request):
     intent_id = request.GET.get("intent")
     # Optionally show payment details here
     return render(request, "payment_confirmation.html", {"intent_id": intent_id})
+
+
+def recalculate_event(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    qty = int(request.GET.get("qty", 1))
+    promo = request.GET.get("code", "").strip().upper()
+
+    # Base price
+    price = event.price * qty
+    discount = 0
+
+    # Apply promo if valid for this event
+    if event.promo_code and promo == event.promo_code.upper():
+        discount = event.promo_discount
+        price = price * (1 - discount / 100)
+
+    # Convert to cents for Stripe
+    amount_cents = int(price * 100)
+
+    # Always create a new PaymentIntent for the recalculated amount
+    intent = stripe.PaymentIntent.create(
+        amount=amount_cents,
+        currency="usd",
+        automatic_payment_methods={"enabled": True},
+        metadata={
+            "event": event.id,
+            "quantity": qty,
+            "promo_code": promo,
+        },
+    )
+
+    return JsonResponse({
+        "valid": bool(discount),
+        "discount": discount,
+        "amount_display": f"${price:.2f}",
+        "client_secret": intent.client_secret,
+        "message": f"{discount}% discount applied." if discount else "No discount applied.",
+    })
 
 
 def handler404(request, exception=None):

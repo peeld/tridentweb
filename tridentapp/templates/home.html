@@ -51,9 +51,11 @@
 						Ticket Price: ${{event.price}}
 					</p>
 
-					<a href="{% url 'purchase_event' event_id=event.id %}">
-						<button class="button is-default">Purchase</button>
-					</a>
+					<p class="mt-4 has-text-centered">
+						<a href="{% url 'purchase_event' event_id=event.id %}">
+							<button class="button is-link">Purchase</button>
+						</a>
+					</p>
 
 
 
