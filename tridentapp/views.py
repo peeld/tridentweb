@@ -1,25 +1,24 @@
 from django.utils import timezone
 from django.utils.timezone import now
-from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.conf import settings
 from django.http import HttpResponse
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
-from django.contrib.auth.tokens import default_token_generator
-from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 
 from .forms import RegisterForm
 from .forms import SESEmailPasswordResetForm
 from .models import Event, Product, Customer
+from .utils import send_new_account_email, send_purchase_email
 
 import pytz
 import stripe
-import boto3
+
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -55,7 +54,7 @@ def register(request):
             user = form.save(commit=False)
             user.is_active = False  # deactivate until confirmed
             user.save()
-            send_confirmation_email(user, request)
+            send_new_account_email(user)
             return render(request, "registration/registration_pending.html")
     else:
         form = RegisterForm()
@@ -75,41 +74,6 @@ def activate(request, uidb64, token):
         return redirect("login")  # or dashboard
     else:
         return render(request, "registration/activation_invalid.html")    
-
-    
-def send_confirmation_email(user, request):
-    token = default_token_generator.make_token(user)
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-    confirm_url = request.build_absolute_uri(f"/activate/{uid}/{token}/")
-
-    subject = "Confirm your account"
-    body_text = render_to_string("registration/activation_email.txt", {
-        "user": user,
-        "confirm_url": confirm_url,
-    })
-
-
-    # Create boto3 SES client
-    ses_client = boto3.client(
-        "ses",
-        aws_access_key_id=settings.SES_MOCAPSCHOOL_KEY,
-        aws_secret_access_key=settings.SES_MOCAPSCHOOL_SECRET,
-        region_name=settings.SES_MOCAPSCHOOL_REGION,
-    )
-
-    # Send email using AWS SES API
-    ses_client.send_email(
-        Source=settings.DEFAULT_FROM_EMAIL,
-        Destination={
-            "ToAddresses": [user.email],
-        },
-        Message={
-            "Subject": {"Data": subject, "Charset": "UTF-8"},
-            "Body": {
-                "Text": {"Data": body_text, "Charset": "UTF-8"},
-            },
-        },
-    )    
 
 
 class PasswordResetSESView(auth_views.PasswordResetView):
@@ -319,13 +283,20 @@ def stripe_webhook(request):
             except Event.DoesNotExist:
                 return HttpResponse(status=200)
 
+            email = None
             # Assign event to user
             if user_id:
                 try:
                     user = User.objects.get(pk=user_id)
+                    email = user.email
                     event.purchasers.add(user)
                 except User.DoesNotExist:
                     pass
+            else:
+                email = intent["metadata"].get("email")
+
+            if email:
+                send_purchase_email(email, f"{event.title} {event.date}")
 
 
     elif event["type"] == "payment_intent.payment_failed":

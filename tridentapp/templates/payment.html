@@ -38,8 +38,6 @@
 
 <form id="payment-form">
 
-
-
   <div class="field">
     <label class="label">Item</label>
     <div class="control">
@@ -55,6 +53,18 @@
     </div>
     <p class="help">This is the total that will be charged.</p>
   </div>
+
+  {% if not user.is_authenticated %}
+
+  <!-- Email -->
+  <div class="field">
+    <label class="label">Email</label>
+    <div class="control">
+      <input id="email" class="input" type="text" placeholder="name@example.com" required>
+    </div>
+  </div>
+
+  {% endif %}
 
   <!-- Cardholder Name -->
   <div class="field">
