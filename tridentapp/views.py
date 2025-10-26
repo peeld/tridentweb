@@ -293,7 +293,11 @@ def stripe_webhook(request):
                 except User.DoesNotExist:
                     pass
             else:
-                email = intent["metadata"].get("email")
+                charges = intent.get("charges", {}).get("data", [])
+                if charges:
+                    email = charges[0].get("billing_details", {}).get("email")
+                else:
+                    email = None
 
             if email:
                 send_purchase_email(email, f"{event.title} {event.date}")
