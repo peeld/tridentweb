@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h1 class="title has-text-centered mb-5">Upcoming Events</h1>
+
+    {% if events %}
+      <div class="columns is-multiline">
+        {% for event in events %}
+          <div class="column is-one-third">
+            <div class="card has-shadow">
+              <header class="card-header has-background-grey-lighter">
+                <p class="card-header-title is-justify-content-space-between is-align-items-center">
+                  <span>{{ event.title }}</span>
+                  <span class="tag is-info">
+                    {{ event.date|date:"M d, Y H:i" }}
+                  </span>
+                </p>
+              </header>
+
+              <div class="card-content">
+                {% if event.content %}
+                  <div class="content">
+                    {{ event.content|truncatewords:25 }}
+                  </div>
+                {% else %}
+                  <p class="has-text-grey">No description available.</p>
+                {% endif %}
+
+                <div class="mt-4">
+                  <p class="is-size-5 has-text-weight-semibold">
+                    ${{ event.price }}
+                  </p>
+                </div>
+              </div>
+
+              <footer class="card-footer">
+                {% if event.livestream_url %}
+                  <a href="{{ event.livestream_url }}" class="card-footer-item button is-link is-light">
+                    <span class="icon"><i class="fas fa-video"></i></span>
+                    <span>Watch Live</span>
+                  </a>
+                {% else %}
+                  <a href="{% url 'purchase_event' event.id %}" class="card-footer-item button is-primary is-light">
+                    <span class="icon"><i class="fas fa-ticket-alt"></i></span>
+                    <span>Purchase Ticket</span>
+                  </a>
+                {% endif %}
+              </footer>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="notification is-info has-text-centered">
+        <p>No upcoming events at the moment. Please check back soon!</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

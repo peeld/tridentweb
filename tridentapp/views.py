@@ -86,6 +86,15 @@ class PasswordResetSESView(auth_views.PasswordResetView):
 
 
 def events(request):
+    events = (
+        Event.objects.filter(date__gte=timezone.now())
+        .order_by("date")
+    )
+
+    return render(request, "events.html", {"events": events})
+
+
+def livestream(request):
     """Renders a page listing past livestreams, and identifies current and next upcoming livestreams."""
     pacific = pytz.timezone('America/Los_Angeles')
     current_time = now().astimezone(pacific)
@@ -130,8 +139,8 @@ def events(request):
             past_events.append(event)
 
     return render(request, 'livestream.html', {
-        'livestreams': past_events,
-        'next_livestream': next_event,
+        'past_events': past_events,
+        'next_event': next_event,
         'current_livestream': current_event,
     })
 

@@ -17,6 +17,11 @@
             });
         });
     </script>
+    <style>
+        .button.no-border {
+             border: none !important;
+        }
+    </style>
 	{% block headings %}{% endblock %}
 </head>
 <body>
@@ -31,29 +36,46 @@
         </div>
         <div class="navbar-menu ">
             <div class="navbar-end">
-                <a href="{% url 'home' %}">
-                    <button class="navbar-item has-text-light has-background-grey mr-1 mt-2 mb-2">Home</button>
+
+                <a href="{% url 'home' %}" class="button is-light has-background-grey has-text-light is-rounded mr-1 mt-2 mb-2">
+                    <span class="icon"><i class="fas fa-home"></i></span>
+                    <span>Home</span>
                 </a>
-                <a href="{% url 'events' %}">
-                    <button class="navbar-item has-text-light has-background-grey mr-1 mt-2 mb-2">Events</button>
+
+                <a href="{% url 'events' %}" class="button is-light has-background-grey has-text-light is-rounded mr-1 mt-2 mb-2">
+                    <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+                    <span>Events</span>
                 </a>
+
                 {% if user.is_authenticated %}
-                    <a href="{% url 'user_home' %}">
-                        <button class="navbar-item has-text-light has-background-grey mr-1 mt-2 mb-2">Account</button>
+
+                    <a href="{% url 'user_home' %}" class="button is-light has-background-grey has-text-light is-rounded mr-1 mt-2 mb-2">
+                        <span class="icon"><i class="fas fa-user-cog"></i></span>
+                        <span>Account</span>
                     </a>
+
                     <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="navbar-item has-text-light has-background-grey mr-1 mt-2 mb-2">
-                          Logout
-                        </button>
+                      {% csrf_token %}
+                      <button type="submit"
+                              class="button is-rounded has-background-grey has-text-light is-shadowless no-border mr-1 mt-2 mb-2">
+                        <span class="icon">
+                          <i class="fa-solid fa-right-from-bracket"></i>
+                        </span>
+                        <span>Logout</span>
+                      </button>
                     </form>
                 {% else %}
-                    <a href="{% url 'login' %}">
-                        <button class="navbar-item has-text-light has-background-grey mr-1 mt-2 mb-2">Login</button>
+
+                    <a href="{% url 'login' %}" class="button is-light has-background-grey has-text-light is-rounded mr-1 mt-2 mb-2">
+                        <span class="icon"><i class="fas fa-sign-in-alt"></i></span>
+                        <span>Login</span>
                     </a>
-                    <a href="{% url 'register' %}">
-                        <button class="navbar-item has-text-light has-background-grey mr-1 mt-2 mb-2">Register</button>
+
+                    <a href="{% url 'register' %}" class="button is-light has-background-grey has-text-light is-rounded mr-1 mt-2 mb-2">
+                        <span class="icon"><i class="fas  fa-user-plus"></i></span>
+                        <span>Register</span>
                     </a>
+
                 {% endif %}
 
             </div>
