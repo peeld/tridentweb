@@ -95,7 +95,7 @@
 						<p class="card-header-title">Location</p>
 					</header>
 					<div class="card-image">
-						<img src="/static/map.png">
+						<img src="/static/map.png" alt="Map of Los Angeles showing studio location in Hollywood">
 					</div>
 					<div class="card-content has-text-centered">
 						<B CLASS="title is-5">Address:</B> 1530 Highland Ave, Los Angeles California.
@@ -104,10 +104,10 @@
 
 				<div class="card mt-5">
 					<div class="card-image">
-						<img src="/static/improv.png">
+						<img src="/static/improv.png" alt="motion capture performers doing an improvised scene">
 					</div>
 					<div class="card-content has-text-centered">
-						We do events!
+						<A class="button is-rounded" href="{% url 'events' %}">Events</A>
 					</div>
 				</div>
 
@@ -185,17 +185,28 @@
 	<div class="container">
 		<div class="columns is-vcentered is-align-items-start">
 			<div class="column">
-			<div class="box">
-		<h2 class="title is-3 has-text-centered">Exploring the Future of Motion Capture</h2>
-		<p class="has-text-centered">We are constantly experimenting with new tools, workflows, and best practices to push the boundaries of motion capture. From rapid content creation and AI-powered tools to cutting-edge virtual production techniques, our goal is to innovate and evolve the industry.</p>
+				<div class="box">
+					<h2 class="title is-3 has-text-centered">Exploring the Future of Motion Capture</h2>
+					<p class="has-text-centered">We are constantly experimenting with new tools, workflows, and best practices to push the boundaries of motion capture. From rapid content creation and AI-powered tools to cutting-edge virtual production techniques, our goal is to innovate and evolve the industry.</p>
+				</div>
 			</div>
-			</div>
-			<div class="column has-text-centered">
-				<figure class="image is-4by3">
-					<img src="https://mocapschool.com/static/MAVCam.jpg" alt="Meetup event at Trident Motion Capture Lab">
-				</figure>
-			</div>
-			</div>
+
+<div class="column">
+  <div class="card has-text-centered">
+    <div class="card-image">
+      <figure class="image is-4by3">
+        <img src="/static/MAVCam.jpg" alt="Image Mark Andrews holding the Peel Virtual Camera with a motion capture marker cluster, a screen and attached joystick handles">
+      </figure>
+    </div>
+    <div class="card-content">
+      <p class="content has-text-grey">
+        Mark Andrews using the <a href="https://peeldev.com/vcam">Peel Virtual Camera System</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+		</div>
 	</div>
 </section>
 
