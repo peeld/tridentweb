@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="section">
+  <div class="container box">
+    <h1 class="title has-text-centered">{{ event.title }}</h1>
+    <p class="subtitle has-text-centered">{{ event.date|date:"F j, Y, g:i a" }}</p>
+
+    <div class="content">
+      {{ event.description|safe }}
+    </div>
+
+    <hr>
+
+    {% if already_registered %}
+      <div class="notification is-success has-text-centered">
+        🎉 You are already registered for this event!
+      </div>
+      <div class="has-text-centered mt-4">
+        <a href="{% url 'event_info' event.id %}" class="button is-light">Back to Event Info</a>
+      </div>
+    {% else %}
+      <div class="has-text-centered mt-5">
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="button is-link is-medium">
+            Click Here to Register
+          </button>
+        </form>
+        <p class="mt-4">
+          <a href="{% url 'events' %}" class="button is-light">← Back to Events</a>
+        </p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

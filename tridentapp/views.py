@@ -9,8 +9,11 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+
 
 from .forms import RegisterForm
 from .forms import SESEmailPasswordResetForm
@@ -149,6 +152,7 @@ def livestream(request):
         'current_livestream': current_event,
     })
 
+
 @login_required
 def purchase_product(request, product_id):
     # Get the product or return 404 if not found
@@ -177,6 +181,32 @@ def purchase_product(request, product_id):
     })
 
 
+def event_register(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+
+    # If user not logged in → redirect to login page with "next" param
+    if not request.user.is_authenticated:
+        login_url = f"{reverse('login')}?next={request.path}"
+        return redirect(login_url)
+
+    # Handle POST registration (after login)
+    if request.method == "POST":
+        if request.user not in event.purchasers.all():
+            event.purchasers.add(request.user)
+            messages.success(request, f"You have successfully registered for {event.title}!")
+        else:
+            messages.info(request, "You are already registered for this event.")
+        return redirect("event_info", event_id=event.id)
+
+    # Determine if already registered
+    already_registered = request.user in event.purchasers.all()
+
+    return render(request, "event_register.html", {
+        "event": event,
+        "already_registered": already_registered,
+    })
+
+
 def purchase_event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
 
@@ -185,6 +215,9 @@ def purchase_event(request, event_id):
 
     amount_cents = int(event.price * quantity * 100)
     amount_display = f"${event.price * quantity:.2f}"
+
+    if amount_cents == 0:
+        return redirect('event_register', event_id=event.id)
 
     if request.user.is_authenticated:
         customer_id = get_or_create_stripe_customer(request.user)
@@ -229,7 +262,7 @@ def purchase_event(request, event_id):
         },
     )
 
-    return render(request, "payment.html", {
+    return render(request, "event_payment.html", {
         "client_secret": intent.client_secret,
         "STRIPE_PUBLISHABLE_KEY": settings.STRIPE_PUBLISHABLE_KEY,
         "user": request.user,

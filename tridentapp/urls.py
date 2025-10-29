@@ -1,6 +1,6 @@
 from .views import home, user_home, events, purchase_product, purchase_event, register, activate
 from .views import PasswordResetSESView, stripe_webhook, payment_confirmation, recalculate_event
-from .views import event_info
+from .views import event_info, event_register
 from django.urls import path
 
 handler404 = "tridentapp.views.handler404"
@@ -22,6 +22,7 @@ urlpatterns = [
     path("activate/<uidb64>/<token>/", activate, name="activate"),
     path('product/purchase/<int:product_id>/', purchase_product, name='purchase_product'),
     path('event/purchase/<int:event_id>/', purchase_event, name='purchase_event'),
+    path('event_register/<int:event_id>/', event_register, name='event_register'),
     path("stripe/webhook/", stripe_webhook, name="stripe_webhook"),
     path("payment/confirmation/", payment_confirmation, name="payment_confirmation"),
     path("api/events/<int:event_id>/recalculate/", recalculate_event, name="recalculate_event"),
