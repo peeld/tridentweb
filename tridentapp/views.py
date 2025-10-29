@@ -13,6 +13,8 @@ from django.urls import reverse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
 
 
 from .forms import RegisterForm
@@ -58,7 +60,10 @@ def register(request):
             user = form.save(commit=False)
             user.is_active = False  # deactivate until confirmed
             user.save()
-            send_new_account_email(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            confirm_url = request.build_absolute_uri(f"/activate/{uid}/{token}/")
+            send_new_account_email(user, confirm_url)
             return render(request, "registration/registration_pending.html")
     else:
         form = RegisterForm()
