@@ -36,7 +36,7 @@ except ImportError:
 hostname = socket.gethostname()
 is_debug = hostname in ["MSI", "DESKTOP-AHM435B"]
 # is_debug = 1
-DEBUG = is_debug
+DEBUG = True
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -140,33 +140,30 @@ LOGGING = {
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
-#TIME_ZONE = 'US/Pacific'
 TIME_ZONE = 'America/Los_Angeles'
-
-
 USE_I18N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
 
-STATIC_URL = 'static/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 DEFAULT_FROM_EMAIL = "support@mocapschool.com"
 
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
-
 
 # CK EDITOR
 
@@ -195,5 +192,3 @@ CKEDITOR_5_CONFIGS = {
 }
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
