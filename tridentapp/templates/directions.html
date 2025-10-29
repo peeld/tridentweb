@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+
+    <div class="has-text-centered m-6">
+      <h1 class="title is-3">Parking Directions</h1>
+      <p class="subtitle is-5 has-text-grey">
+        Follow these directions to find the parking at around the back of the building.
+      </p>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-two-thirds has-text-centered">
+        <div class="content">
+          <p>
+            <strong>Address:</strong><br>
+            1543 N McCadden Pl, Los Angeles, CA 90028
+          </p>
+
+          <p>
+            <strong>Entrance:</strong><br>
+            The entrance is the <em>last door to the left</em> at the end of the parking lot,
+            near the apartment building.
+          </p>
+
+          <P>
+            A valet parking lot for a nearby restaurant is located next door; our parking area is immediately to its right.
+          </P>
+
+          <div class="box mt-6">
+            <figure class="image is-inline-block" style="width: 50%;">
+              <img src="/static/parking_map.jpg" alt="Parking Lot Map">
+            </figure>
+            <p class="has-text-grey mt-2">Parking lot location</p>
+          </div>
+
+          <div class="box mt-5">
+            <figure class="image">
+              <img src="/static/street_map.png" alt="Street Map">
+            </figure>
+            <p class="has-text-grey mt-2">Street-level view</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

@@ -44,6 +44,10 @@ def home(request):
     return render(request, 'home.html', {'events': future_events})
 
 
+def directions(request):
+    return render(request, 'directions.html')
+
+
 @login_required
 def user_home(request):
     products = request.user.purchased_products.all()
