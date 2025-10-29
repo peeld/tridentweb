@@ -32,12 +32,9 @@ def send_email(email, subject, body_text):
     )
 
 
-def send_new_account_email(user):
+def send_new_account_email(user, confirm_url):
 
-    token = default_token_generator.make_token(user)
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
     template_name = "registration/activation_email.txt"
-    confirm_url = request.build_absolute_uri(f"/activate/{uid}/{token}/")
 
     subject = "Confirm your account"
     body_text = render_to_string(template_name, {
