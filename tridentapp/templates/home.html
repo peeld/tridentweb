@@ -30,21 +30,12 @@
  					<p class="is-size-5"><strong>📅 Date:</strong> {{ event.date|date:"F" }} {{ event.date|date:"j"|ordinal }}</p>
 					<p class="is-size-5"><strong>🕔 Time:</strong> {{ event.date|date:"H:i a" }} Pacific Time </p>
 
-					<p class="mt-4">Get ready for an exciting <strong>live-streamed event</strong> you won’t want to miss!
-						Join us on <strong>{{ event.date|date:"F" }} {{ event.date|date:"j"|ordinal }} at {{ event.date|date:"H:ia" }}</strong> for an exclusive experience—streamed live,
-						directly to you. No downloads, no sign-ups—just show up and enjoy!</p>
-
-					<div class="notification mt-2">
-						<p class="has-text-weight-bold">🔹 What to Expect:</p>
-						<ul class="ml-4 mt-2">
-							<li>✅ Live Stream Motion Capture</li>
-							<li>✅ Latest Virtual Camera R&D showcase</li>
-							<li>✅ Exclusive content, insights & announcements</li>
-						</ul>
-					</div>
+					<p class="mt-4">
+						{{ event.description }}
+					</p>
 
 					<p class="mt-4 has-text-centered">
-						<strong>🎉 Register below, mark your calendar, invite your friends, and we’ll see you live on {{ event.date|date:"F" }} {{ event.date|date:"j"|ordinal }}!</strong>
+						<strong>🎉 Register below and mark your calendar!</strong>
 					</p>
 
 					<p class="mt-4 has-text-centered">

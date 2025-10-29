@@ -1,13 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django_ckeditor_5.fields import CKEditor5Field
 
 class Event(models.Model):
     """ Event tickets can be purchased to be attended on a specific date """
     title = models.CharField(default='', max_length=255)
     date = models.DateTimeField()
     livestream_url = models.URLField(null=True, blank=True)
-    content = models.TextField(default='', null=True, blank=True)
+    description = models.TextField(default='', null=True, blank=True)
+    content = CKEditor5Field('Content', config_name='default', blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     purchasers = models.ManyToManyField(User, blank=True, related_name="purchased_events")
     promo_code = models.CharField(max_length=50, blank=True, null=True)

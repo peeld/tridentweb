@@ -15,7 +15,7 @@ import os.path
 import socket
 
 try:
-    from .secrets import STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+    from .secrets import STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SECRET_KEY
 except ImportError:
     STRIPE_PUBLISHABLE_KEY = None
     STRIPE_SECRET_KEY = None
@@ -27,27 +27,21 @@ except ImportError:
     SES_MOCAPSCHOOL_KEY = None
     SES_MOCAPSCHOOL_SECRET = None
     SES_MOCAPSCHOOL_REGION = None
-    
+
+try:
+    from .secrets import SECRET_KEY
+except ImportError:
+    SECRET_KEY = None
 
 hostname = socket.gethostname()
 is_debug = hostname in ["MSI", "DESKTOP-AHM435B"]
 # is_debug = 1
+DEBUG = is_debug
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1$uua(^5+(9am#izkyj5_-wjf6vt7*g8wcvvbw8uv!d#9jo%7u'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = is_debug
-
 ALLOWED_HOSTS = [ "trident.peeldev.com", "mocapschool.com", "www.mocapschool.com", "localhost", "127.0.0.1"]
-
 
 # Application definition
 
@@ -172,3 +166,34 @@ DEFAULT_FROM_EMAIL = "support@mocapschool.com"
 
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
+
+
+# CK EDITOR
+
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': [
+            {
+                'name': 'styles',
+                'items': ['heading', '|', 'bold', 'italic', 'link', 'underline', 'bulletedList', 'numberedList', 'blockQuote'],
+            },
+            {
+                'name': 'media',
+                'items': ['imageUpload', 'insertTable', 'mediaEmbed'],
+            },
+            {'name': 'undo', 'items': ['undo', 'redo']},
+        ],
+        'height': 300,
+        'width': '100%',
+        'image': {
+            'toolbar': ['imageTextAlternative', 'imageStyle:full', 'imageStyle:side'],
+        },
+        'table': {
+            'contentToolbar': ['tableColumn', 'tableRow', 'mergeTableCells'],
+        },
+    },
+}
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

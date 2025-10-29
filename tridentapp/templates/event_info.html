@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block content %}
+
+  <!-- Header -->
+  <section class="hero">
+      <div class="container has-text-centered">
+        <h1 class="title">{{ event.title }}</h1>
+        <h2 class="subtitle">
+          {{ event.date|date:"F j, Y, g:i a" }}
+        </h2>
+    </div>
+  </section>
+
+  <!-- Main content -->
+  <section class="section">
+    <div class="container">
+
+      <div class="columns">
+        <div class="column is-two-thirds">
+
+          <!-- Description -->
+          <div class="content box">
+            <h3 class="title is-4">About this event</h3>
+            <p>{{ event.description|linebreaks }}</p>
+            {% if event.content %}
+              <div class="mt-4">
+                {{ event.content|safe }}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Livestream -->
+          {% if event.livestream_url %}
+          <div class="box">
+            <h3 class="title is-5">Livestream</h3>
+            <p>
+              <a href="{{ event.livestream_url }}" target="_blank" class="button is-link">
+                Watch Live
+              </a>
+            </p>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="column is-one-third">
+          <div class="box has-text-centered">
+            <h4 class="title is-4">Tickets</h4>
+
+            <p class="is-size-5 mb-4">
+              {% if event.price > 0 %}
+                <strong>${{ event.price }}</strong>
+              {% else %}
+                <strong>Free Event</strong>
+              {% endif %}
+            </p>
+
+            <a href="{% url 'purchase_event' event.id %}" class="button is-success is-fullwidth">
+              {% if event.price > 0 %}
+                Purchase Ticket
+              {% else %}
+                Register Free
+              {% endif %}
+            </a>
+          </div>
+
+          <div class="box has-text-centered">
+            <a href="{% url 'events' %}" class="button is-light is-fullwidth">
+              ← Back to all events
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+{% endblock %}

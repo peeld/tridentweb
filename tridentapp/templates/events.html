@@ -9,7 +9,7 @@
       <div class="columns is-multiline">
         {% for event in events %}
           <div class="column is-one-third">
-            <div class="card has-shadow">
+            <div class="card has-shadow" style="cursor: pointer;" onclick="window.location='{% url 'event_info' event.id %}'">
               <header class="card-header has-background-grey-lighter">
                 <p class="card-header-title is-justify-content-space-between is-align-items-center">
                   <span>{{ event.title }}</span>
@@ -30,22 +30,26 @@
 
                 <div class="mt-4">
                   <p class="is-size-5 has-text-weight-semibold">
-                    ${{ event.price }}
+                    {% if event.price > 0 %}
+                      ${{ event.price }}
+                    {% else %}
+                      Free
+                    {% endif %}
                   </p>
                 </div>
               </div>
 
               <footer class="card-footer">
                 {% if event.livestream_url %}
-                  <a href="{{ event.livestream_url }}" class="card-footer-item button is-link is-light">
+                  <span class="card-footer-item">
                     <span class="icon"><i class="fas fa-video"></i></span>
                     <span>Watch Live</span>
-                  </a>
+                  </span>
                 {% else %}
-                  <a href="{% url 'purchase_event' event.id %}" class="card-footer-item button is-primary is-light">
-                    <span class="icon"><i class="fas fa-ticket-alt"></i></span>
-                    <span>Purchase Ticket</span>
-                  </a>
+                  <span class="card-footer-item">
+                    <span class="icon"><i class="fas fa-info-circle"></i></span>
+                    <span>View Details</span>
+                  </span>
                 {% endif %}
               </footer>
             </div>

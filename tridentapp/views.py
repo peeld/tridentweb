@@ -94,6 +94,11 @@ def events(request):
     return render(request, "events.html", {"events": events})
 
 
+def event_info(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    return render(request, "event_info.html", {"event": event})
+
+
 def livestream(request):
     """Renders a page listing past livestreams, and identifies current and next upcoming livestreams."""
     pacific = pytz.timezone('America/Los_Angeles')
