@@ -36,7 +36,7 @@ except ImportError:
 hostname = socket.gethostname()
 is_debug = hostname in ["MSI", "DESKTOP-AHM435B"]
 # is_debug = 1
-DEBUG = True
+DEBUG = is_debug
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
