@@ -8,7 +8,7 @@ class Event(models.Model):
     title = models.CharField(default='', max_length=255)
     date = models.DateTimeField()
     livestream_url = models.URLField(null=True, blank=True)
-    description = models.TextField(default='', null=True, blank=True)
+    description = CKEditor5Field('Description', config_name='default', blank=True, null=True)
     content = CKEditor5Field('Content', config_name='default', blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     purchasers = models.ManyToManyField(User, blank=True, related_name="purchased_events")

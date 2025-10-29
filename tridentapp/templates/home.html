@@ -4,13 +4,12 @@
 
 {% block content %}
 
-
 <section class="hero is-dark is-bold" style="background-image: url('https://mocapschool.com/static/bg2.png');  background-size: 100% auto; background-repeat: no-repeat; ">
 	<div class="hero-body">
 		<div class="container has-text-centered">
 			<h1 class="title is-1">Trident Motion Capture Lab</h1>
 			<h2 class="subtitle is-5">Hollywood’s Hub for Innovation, Education & Production in Motion Capture</h2>
-					<p>Join our monthly meetups where industry pros, students, and innovators connect, share ideas, and experience 	the latest breakthroughs in performance capture.</p>
+					<p>Join our monthly meetups and events where industry pros, students, and innovators connect, share ideas, and experience 	the latest breakthroughs in performance capture.</p>
 		<p class="mt-4">Attend in person by invite or join us online from anywhere in the world.</p>
 
 		</div>
@@ -21,43 +20,73 @@
 	<div class="container">
 		<div class="columns">
 			<div class="column is-half">
-				<div class="box">
-				
-					<h2 class="title is-4">Upcoming Events</h2>
 
-	{% if events %}
-            {% for event in events %}
- 					<p class="is-size-5"><strong>📅 Date:</strong> {{ event.date|date:"F" }} {{ event.date|date:"j"|ordinal }}</p>
-					<p class="is-size-5"><strong>🕔 Time:</strong> {{ event.date|date:"H:i a" }} Pacific Time </p>
+<!-- EVENTS -->
 
-					<p class="mt-4">
-						{{ event.description }}
-					</p>
+  <h2 class="title is-4 has-text-centered mb-5">Upcoming Events</h2>
 
-					<p class="mt-4 has-text-centered">
-						<strong>🎉 Register below and mark your calendar!</strong>
-					</p>
+  {% if events %}
+      {% for event in events %}
+          <div class="card" style="border: 1px solid #eee; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border-radius: 8px;">
+            <header class="card-header has-background-link-light">
+              <p class="card-header-title is-justify-content-space-between is-align-items-center">
+                <span class="has-text-weight-semibold is-size-5">{{ event.title }}</span>
+                <span class="tag is-link is-light is-size-5">{{ event.date|date:"M j, Y" }}</span>
+              </p>
+            </header>
 
-					<p class="mt-4 has-text-centered">
-						Ticket Price: ${{event.price}}
-					</p>
+            <div class="card-content">
+              <p class="is-size-6 mb-2">
+                <strong>📅 Date:</strong> {{ event.date|date:"F jS Y" }}
+              </p>
+              <p class="is-size-6 mb-4">
+                <strong>🕔 Time:</strong> {{ event.date|date:"g:i a" }} Pacific Time
+              </p>
 
-					<p class="mt-4 has-text-centered">
-						<a href="{% url 'purchase_event' event_id=event.id %}">
-							<button class="button is-link">Purchase</button>
-						</a>
-					</p>
+              <div class="content">
+                {% if event.description %}
+                  {{ event.description|safe }}
+                {% else %}
+                  <span class="has-text-grey">No description available.</span>
+                {% endif %}
+              </div>
+
+              <div class="mt-4 has-text-centered">
+                {% if event.price > 0 %}
+                  <p class="is-size-5 has-text-weight-semibold mb-2">${{ event.price }}</p>
+                {% else %}
+                  <p class="is-size-5 has-text-success has-text-weight-semibold mb-2">Free Event</p>
+                {% endif %}
+
+                <a href="{% url 'purchase_event' event_id=event.id %}" class="button is-link is-rounded mt-2">
+                  <span class="icon"><i class="fas fa-ticket-alt"></i></span>
+                  <span>Register / Purchase</span>
+                </a>
+
+				   &nbsp;
+
+                <a href="{% url 'event_info' event_id=event.id %}" class="button is-primary is-rounded mt-2">
+                  <span class="icon"><i class="fas fa-ticket-alt"></i></span>
+                  <span>More Information</span>
+                </a>
+
+              </div>
+            </div>
+        </div>
+      {% endfor %}
+  {% else %}
+    <div class="notification is-info has-text-centered">
+      <p>No upcoming events right now — check back soon!</p>
+    </div>
+  {% endif %}
 
 
 
-
-            {% endfor %}
-    {% endif %}
-						
-
-				</div> <!-- box -->
 			</div>
+
+
 			<div class="column is-half">
+			<h2 class="title is-4 has-text-centered mb-5">&nbsp;</h2>
 				<img src="https://mocapschool.com/static/improv.png">
 			</div> <!-- cols -->
 		</div> <!-- cols -->		
@@ -125,7 +154,7 @@
 		</div>
 	</div>
 </section>
-    
+
 <section class="section is-light">
 	<div class="container">
 		<div class="columns is-vcentered is-align-items-start">

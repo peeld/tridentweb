@@ -22,7 +22,7 @@
               <div class="card-content">
                 {% if event.content %}
                   <div class="content">
-                    {{ event.content|truncatewords:25 }}
+                    {{ event.description|safe }}
                   </div>
                 {% else %}
                   <p class="has-text-grey">No description available.</p>

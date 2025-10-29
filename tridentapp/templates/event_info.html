@@ -4,6 +4,9 @@
 
 {% block content %}
 
+<section class="section">
+  <div class="container">
+
   <!-- Header -->
   <section class="hero">
       <div class="container has-text-centered">
@@ -24,7 +27,7 @@
           <!-- Description -->
           <div class="content box">
             <h3 class="title is-4">About this event</h3>
-            <p>{{ event.description|linebreaks }}</p>
+            <p>{{ event.description|safe }}</p>
             {% if event.content %}
               <div class="mt-4">
                 {{ event.content|safe }}
@@ -37,7 +40,7 @@
           <div class="box">
             <h3 class="title is-5">Livestream</h3>
             <p>
-              <a href="{{ event.livestream_url }}" target="_blank" class="button is-link">
+              <a href="{{ event.livestream_url }}" target="_blank" class="button is-link is-rounded">
                 Watch Live
               </a>
             </p>
@@ -58,7 +61,7 @@
               {% endif %}
             </p>
 
-            <a href="{% url 'purchase_event' event.id %}" class="button is-success is-fullwidth">
+            <a href="{% url 'purchase_event' event.id %}" class="button is-success is-fullwidth is-rounded">
               {% if event.price > 0 %}
                 Purchase Ticket
               {% else %}
@@ -68,7 +71,7 @@
           </div>
 
           <div class="box has-text-centered">
-            <a href="{% url 'events' %}" class="button is-light is-fullwidth">
+            <a href="{% url 'events' %}" class="button is-light is-fullwidth is-rounded">
               ← Back to all events
             </a>
           </div>
@@ -78,4 +81,6 @@
     </div>
   </section>
 
+  </div>
+</section>
 {% endblock %}
