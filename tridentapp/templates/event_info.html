@@ -50,7 +50,13 @@
 
         <!-- Sidebar -->
         <div class="column is-one-third">
+
+          {% if event.image %}
+            <img src="{{ event.image.url }}" alt="{{ event.name }}">
+          {% endif %}
+
           <div class="box has-text-centered">
+
             <h4 class="title is-4">Tickets</h4>
 
             <p class="is-size-5 mb-4">

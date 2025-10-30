@@ -14,6 +14,8 @@ class Event(models.Model):
     purchasers = models.ManyToManyField(User, blank=True, related_name="purchased_events")
     promo_code = models.CharField(max_length=50, blank=True, null=True)
     promo_discount = models.PositiveIntegerField(default=0, help_text="Discount percentage (e.g. 10 for 10%)")
+    image = models.ImageField(upload_to='events/', blank=True, null=True)
+
 
     def __str__(self):
         return f"{self.date} - {self.title}"

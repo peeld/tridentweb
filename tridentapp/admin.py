@@ -19,3 +19,12 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = ['title', 'date']
+
+    def image_tag(self, obj):
+        if obj.image:
+            return f'<img src="{obj.image.url}" width="100"/>'
+        return "-"
+
+    image_tag.allow_tags = True
+    image_tag.short_description = 'Image'
+
