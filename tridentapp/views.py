@@ -398,7 +398,7 @@ def stripe_webhook(request):
             if user_id:
                 try:
                     user = User.objects.get(pk=user_id)
-                    name = user.name
+                    name = user.get_full_name()
                     email = user.email
                     event.purchasers.add(user)
                 except User.DoesNotExist:
@@ -409,9 +409,17 @@ def stripe_webhook(request):
                     name = charges[0].get("billing_details", {}).get("name")
 
             if email:
-                send_purchase_email(email, f"{event.title} {event.date}")
+                formatted_date = event.date.strftime("%b %d, %Y %I:%M %p")
+                message = "Thank you for your purchase of: \n\n"
+                message += f" {quantity} x {event.title} - {formatted_date} \n\n"
+                message += f"For :  {email} {name}\n\n"
+                message += f"Your name will be on the list at the door - See you then!"
+                send_purchase_email(email, message)
 
-            send_admin_email("New Event Purchase", f"{event.title} {quantity} {email} {name} ")
+            message = "New Purchase: "
+            message += f"  {quantity} x {event.title} - {formatted_date} \n\n"
+            message += f"For :  {email} {name}\n" 
+            send_admin_email("New Event Purchase", message)
 
     elif event["type"] == "payment_intent.payment_failed":
         intent = event["data"]["object"]
