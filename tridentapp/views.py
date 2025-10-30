@@ -218,66 +218,100 @@ def event_register(request, event_id):
 
 def purchase_event(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
-
     quantity = int(request.POST.get("quantity", 1))
-    promo_code = int(request.POST.get("promo", 1))
+    promo_code = request.POST.get("promo", "").strip()
+    action = request.POST.get("action", "")
+    email = request.POST.get("email", "")
+    login_error = ""
 
-    amount_cents = int(event.price * quantity * 100)
-    amount_display = f"${event.price * quantity:.2f}"
+    # Apply promo if valid for this event
+    promo_message = ""
+    discount = Decimal('0')
+    if promo_code:
+        if event.promo_code and promo_code == event.promo_code.upper():
+            discount = event.promo_discount
+            promo_message = f"{event.promo_discount}% discount applied"
+        else:
+            promo_message = "Invalid code"
 
-    if amount_cents == 0:
-        return redirect('event_register', event_id=event.id)
+    # Calculate discounted total
+    base_price = event.price * quantity
+    discounted_price = base_price * (Decimal('1') - discount / Decimal('100'))
+    total_display = f"${discounted_price:.2f}"
 
+    if action == "continue":
+        # Store chosen data in session and redirect to payment
+        request.session["purchase_data"] = {
+            "quantity": quantity,
+            "promo_code": promo_code,
+            "email": email,
+        }
+        return redirect(reverse("pay_event", args=[event_id]))
+
+    return render(request, "event_purchase.html", {
+        "event": event,
+        "quantity": quantity,
+        "promo_code": promo_code,
+        "promo_message": promo_message,
+        "amount_display": total_display,
+        "login_error": login_error,
+        "discounted_price": discounted_price,
+        "email": email
+    })
+
+
+def pay_event(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    data = request.session.get("purchase_data")
+
+    if not data:
+        return redirect("purchase_event", event_id=event.id)
+
+    quantity = int(data["quantity"])
+    promo_code = data.get("promo_code", "")
+    email = data.get("email", "")
+    discount = Decimal('0')
+
+    if promo_code and event.promo_code and promo_code == event.promo_code.upper():
+        discount = event.promo_discount
+
+    base_price = event.price * quantity
+    discounted_price = base_price * (Decimal('1') - discount / Decimal('100'))
+    amount_cents = int(discounted_price * 100)
+    amount_display = f"${discounted_price:.2f}"
+
+    # Stripe customer
     if request.user.is_authenticated:
         customer_id = get_or_create_stripe_customer(request.user)
+        email = request.user.email
     else:
         customer_id = None
 
-    # Check if user posted "save_card" in the form (via JS or fallback POST)
-    save_card = request.POST.get("save_card") == "on"
-
-    # Determine setup behavior
-    setup_future_usage = "off_session" if (request.user.is_authenticated and save_card) else None
-
-    # If user chooses to log in from this page (POST form with username/password)
-    if request.method == "POST" and "login" in request.POST:
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user:
-            login(request, user)
-            return redirect("purchase_event", event_id=event_id)
-        else:
-            return render(request, "payment.html", {
-                "login_error": "Invalid credentials",
-                "STRIPE_PUBLISHABLE_KEY": settings.STRIPE_PUBLISHABLE_KEY,
-                "amount_display": amount_display,
-                "quantity": quantity,
-                "item_name": event.title,
-                "client_secret": None,
-            })
-
-    # Create a Stripe PaymentIntent for both guest and logged-in user
+    # Create PaymentIntent
     intent = stripe.PaymentIntent.create(
         amount=amount_cents,
         currency="usd",
         customer=customer_id,
         automatic_payment_methods={"enabled": True},
-        setup_future_usage=setup_future_usage,
         metadata={
+            "email": email,
             "event": event.id,
+            "quantity": quantity,
             "user_id": request.user.id if request.user.is_authenticated else None,
             "promo_code": promo_code,
         },
     )
 
-    return render(request, "event_payment.html", {
+    context = {
+        "event": event,
+        "quantity": quantity,
+        "promo_code": promo_code,
+        "email": email,
+        "amount_display": amount_display,
         "client_secret": intent.client_secret,
         "STRIPE_PUBLISHABLE_KEY": settings.STRIPE_PUBLISHABLE_KEY,
-        "user": request.user,
-        "amount_display": amount_display,
-        "event": event
-    })
+    }
+    return render(request, "event_payment.html", context)
 
 
 def create_checkout_session(request):
@@ -382,49 +416,6 @@ def payment_confirmation(request):
     intent_id = request.GET.get("intent")
     # Optionally show payment details here
     return render(request, "payment_confirmation.html", {"intent_id": intent_id})
-
-
-def recalculate_event(request, event_id):
-    event = get_object_or_404(Event, pk=event_id)
-    qty = int(request.GET.get("qty", 1))
-    promo = request.GET.get("code", "").strip().upper()
-
-    # Base price
-    price = event.price * qty
-    discount = 0
-    message = ""
-
-    # Apply promo if valid for this event
-    if promo:
-        if event.promo_code and promo == event.promo_code.upper():
-            discount = Decimal(event.promo_discount) / Decimal(100)
-            price = price * (Decimal(1) - discount)
-            message = f"{event.promo_discount}% discount applied"
-        else:
-            message = "Invalid code"
-
-    # Convert to cents for Stripe
-    amount_cents = int(price * 100)
-
-    # Always create a new PaymentIntent for the recalculated amount
-    intent = stripe.PaymentIntent.create(
-        amount=amount_cents,
-        currency="usd",
-        automatic_payment_methods={"enabled": True},
-        metadata={
-            "event": event.id,
-            "quantity": qty,
-            "promo_code": promo,
-        },
-    )
-
-    return JsonResponse({
-        "valid": bool(discount),
-        "discount": discount,
-        "amount_display": f"${price:.2f}",
-        "client_secret": intent.client_secret,
-        "message": message
-    })
 
 
 def handler404(request, exception=None):

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <h1 class="title has-text-centered">Purchase Event Tickets</h1>
+
+        {% if not user.is_authenticated %}
+          <div class="box mb-5">
+            <h2 class="subtitle">Have an account?</h2>
+            <form method="POST">
+              {% csrf_token %}
+              <div class="field">
+                <label class="label">Username</label>
+                <div class="control">
+                  <input type="text" name="username" class="input">
+                </div>
+              </div>
+              <div class="field">
+                <label class="label">Password</label>
+                <div class="control">
+                  <input type="password" name="password" class="input">
+                </div>
+              </div>
+              <button type="submit" name="login" class="button is-link is-small is-rounded">Log In</button>
+              <p class="help">Or continue below as a guest.</p>
+              {% if login_error %}
+                <p class="help is-danger">{{ login_error }}</p>
+              {% endif %}
+            </form>
+          </div>
+        {% endif %}
+
+        <div class="box">
+
+<form id="payment-form" method="post">
+
+  {% csrf_token %}
+
+  <div class="field">
+    <label class="label">Item</label>
+    <div class="control">
+      {{ event.title }}
+    </div>
+  </div>
+
+  <!-- Quantity -->
+  <div class="field">
+    <label class="label">Number of Tickets</label>
+    <div class="control">
+      <input name="quantity" id="quantity" class="input" type="number" min="1" value="{{ quantity }}">
+    </div>
+    <p class="help">Select how many tickets you want to purchase.</p>
+  </div>
+
+
+  <!-- Promo Code -->
+  <div class="field">
+    <label class="label">Promo Code</label>
+    <div class="field has-addons">
+      <div class="control is-expanded">
+        <input id="promo" name="promo" class="input" type="text" placeholder="Enter promo code" value="{{ promo_code }}">
+      </div>
+      <div class="control">
+        <button type="submit" name="action" value="apply_promo" class="button is-primary is-rounded">Apply</button>
+      </div>
+    </div>
+    {% if promo_message %}
+      <p id="promo-message" class="help">{{ promo_message }}</p>
+    {% endif %}
+  </div>
+
+
+  <!-- Amount -->
+  <div class="field">
+    <label class="label">Total Amount</label>
+    <div class="control">
+      <input id="amount" class="input is-static" type="text" value="{{ amount_display }}">
+    </div>
+  </div>
+
+
+  {% if not user.is_authenticated %}
+
+  <!-- Email -->
+  <div class="field">
+    <label class="label">Email</label>
+    <div class="control">
+      <input id="email" class="input" type="text" placeholder="name@example.com" value="{{ email }}">
+    </div>
+  </div>
+
+  {% endif %}
+
+  <!-- Submit button -->
+  <div class="field is-grouped is-grouped-centered  mt-4">
+    <div class="control">
+      <button id="submit" class="button is-link is-rounded" name="action" value="continue">
+        <span class="icon">
+          <i class="fas fa-credit-card"></i>
+        </span>
+        <span>Purchase</span>
+      </button>
+    </div>
+  </div>
+
+</form>
+
+          <!-- Message area -->
+          <div id="payment-message" class="notification is-hidden mt-4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+
+  // Recalculate when quantity changes
+  const quantityInput = document.getElementById("quantity");
+  quantityInput.addEventListener("input", () => {
+    const amountField = document.getElementById("amount");
+    const qty = parseInt(quantityInput.value) || 1;
+    const total = qty *  {{ discounted_price }}
+    amountField.value = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(total);
+  });
+
+</script>
+{% endblock %}

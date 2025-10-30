@@ -17,86 +17,33 @@
         <h1 class="title has-text-centered">Make a payment</h1>
         <p class="subtitle has-text-centered">Enter your payment details below</p>
 
-        {% if not user.is_authenticated %}
-          <div class="box mb-5">
-            <h2 class="subtitle">Have an account?</h2>
-            <form method="POST">
-              {% csrf_token %}
-              <div class="field">
-                <label class="label">Username</label>
-                <div class="control">
-                  <input type="text" name="username" class="input" required>
-                </div>
-              </div>
-              <div class="field">
-                <label class="label">Password</label>
-                <div class="control">
-                  <input type="password" name="password" class="input" required>
-                </div>
-              </div>
-              <button type="submit" name="login" class="button is-link is-small is-rounded">Log In</button>
-              <p class="help">Or continue below as a guest.</p>
-              {% if login_error %}
-                <p class="help is-danger">{{ login_error }}</p>
-              {% endif %}
-            </form>
-          </div>
-        {% endif %}
-
         <div class="box">
 
 <form id="payment-form">
 
+  {% csrf_token %}
+
   <div class="field">
-    <label class="label">Item</label>
     <div class="control">
-      {{ event.title }}
+     {{ quantity }} x {{ event.title }}
     </div>
   </div>
 
-  <!-- Promo Code -->
+  <!-- Amount -->
   <div class="field">
-    <label class="label">Promo Code</label>
-    <div class="field has-addons">
-      <div class="control is-expanded">
-        <input id="promo" class="input" type="text" placeholder="Enter promo code">
-      </div>
+    <label class="label">Total</label>
       <div class="control">
-        <button id="apply-promo" type="button" class="button is-primary is-rounded">Apply</button>
+        {{ amount_display }}
       </div>
-    </div>
-    <p id="promo-message" class="help"></p>
   </div>
-
-  <!-- Quantity -->
-<div class="field">
-  <label class="label">Number of Tickets</label>
-  <div class="control">
-    <input id="quantity" class="input" type="number" min="1" value="1" required>
-  </div>
-  <p class="help">Select how many tickets you want to purchase.</p>
-</div>
-
-<!-- Amount -->
-<div class="field">
-  <label class="label">Total Amount</label>
-  <div class="control">
-    <input id="amount" class="input is-static" type="text" value="{{ amount_display }}" readonly>
-  </div>
-</div>
-
-
-  {% if not user.is_authenticated %}
 
   <!-- Email -->
   <div class="field">
     <label class="label">Email</label>
-    <div class="control">
-      <input id="email" class="input" type="text" placeholder="name@example.com" required>
-    </div>
+      <div class="control">
+        {{ email }}
+      </div>
   </div>
-
-  {% endif %}
 
   <!-- Cardholder Name -->
   <div class="field">
@@ -151,8 +98,6 @@
         Save this card for future use
       </label>
     </div>
-
-
   </div>
 
   {% endif %}
@@ -164,7 +109,7 @@
   <!-- Submit button -->
   <div class="field is-grouped is-grouped-centered  mt-4">
     <div class="control">
-      <button id="submit" class="button is-link is-rounded">
+      <button id="submit" class="button is-link is-rounded" name="action" value="pay">
         <span class="icon">
           <i class="fas fa-credit-card"></i>
         </span>
@@ -202,75 +147,7 @@
 
 <script>
 
-  // Recalculate event
-
-  let clientSecret = "{{ client_secret }}";
-
-  const promoInput = document.getElementById("promo");
-  const quantityInput = document.getElementById("quantity");
-  const applyButton = document.getElementById("apply-promo");
-  const amountField = document.getElementById("amount");
-  const promoMessage = document.getElementById("promo-message");
-  const pricePerUnit = {{ event.price }};
-
-  // Shared recalculation function
-  async function recalculate() {
-    const qty = parseInt(quantityInput.value) || 1;
-    const code = promoInput.value.trim();
-
-    try {
-      const response = await fetch(
-        `/api/events/{{ event.id }}/recalculate/?qty=${qty}&code=${encodeURIComponent(code)}`
-      );
-      const data = await response.json();
-
-      amountField.value = data.amount_display;
-      clientSecret = data.client_secret;
-
-      promoMessage.textContent = data.message;
-      promoMessage.className = data.valid
-        ? "help has-text-success"
-        : "help has-text-grey";
-    } catch (err) {
-      promoMessage.textContent = "Error recalculating total.";
-      promoMessage.className = "help has-text-danger";
-    }
-  }
-
-  // Recalculate when promo is applied
-  applyButton.addEventListener("click", async () => {
-    applyButton.classList.add("is-loading");
-    await recalculate();   // fetches new client_secret
-    applyButton.classList.remove("is-loading");
-  });
-
-
-  // Optional: recalculate when quantity changes
-  quantityInput.addEventListener("input", () => {
-    // Wait a short delay to avoid excessive API calls while typing
-    clearTimeout(window.qtyTimer);
-    window.qtyTimer = setTimeout(recalculate, 300);
-  });
-
-
-
-
-
   // PAYMENT
-
-
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const func = () => {
-      const qty = Math.max(1, parseInt(quantityInput.value) || 1);
-      const total = (qty * pricePerUnit).toFixed(2);
-      amountField.value = `$${total}`;
-    };
-
-    quantityInput.addEventListener("input", func);
-    func(); // initial population
-  });
-
 
   const stripe = Stripe("{{ STRIPE_PUBLISHABLE_KEY }}");
   const elements = stripe.elements();
@@ -289,21 +166,14 @@
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    {% if user.is_authenticated %}
-    const email = "{{ user.email }}";
-    {% else %}
-    const email = document.getElementById("email").value;
-    {% endif %}
-
     const {error, paymentIntent} = await stripe.confirmCardPayment(
-      clientSecret,
+      "{{ client_secret }}",
       {
         payment_method: {
           card: cardNumber,
           billing_details: {
             name: document.getElementById("cardholder-name").value,
-            email: email,
-      },
+          },
         }
       }
     );
