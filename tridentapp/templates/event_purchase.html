@@ -3,15 +3,18 @@
 {% block content %}
 
 <section class="section">
+
   <div class="container">
     <div class="columns is-centered">
+
       <div class="column is-half">
         <h1 class="title has-text-centered">Purchase Event Tickets</h1>
+
+        <form id="payment-form" method="post">
 
         {% if not user.is_authenticated %}
           <div class="box mb-5">
             <h2 class="subtitle">Have an account?</h2>
-            <form method="POST">
               {% csrf_token %}
               <div class="field">
                 <label class="label">Username</label>
@@ -25,18 +28,17 @@
                   <input type="password" name="password" class="input">
                 </div>
               </div>
-              <button type="submit" name="login" class="button is-link is-small is-rounded">Log In</button>
+              <button type="submit" name="action" value="login" class="button is-link is-small is-rounded">Log In</button>
               <p class="help">Or continue below as a guest.</p>
               {% if login_error %}
                 <p class="help is-danger">{{ login_error }}</p>
               {% endif %}
-            </form>
           </div>
         {% endif %}
 
         <div class="box">
 
-<form id="payment-form" method="post">
+
 
   {% csrf_token %}
 
@@ -46,6 +48,18 @@
       {{ event.title }}
     </div>
   </div>
+
+  {% if not user.is_authenticated %}
+
+  <!-- Email -->
+  <div class="field">
+    <label class="label">Email</label>
+    <div class="control">
+      <input id="email" class="input" type="text" placeholder="name@example.com" value="{{ email }}">
+    </div>
+  </div>
+
+  {% endif %}
 
   <!-- Quantity -->
   <div class="field">
@@ -83,17 +97,6 @@
   </div>
 
 
-  {% if not user.is_authenticated %}
-
-  <!-- Email -->
-  <div class="field">
-    <label class="label">Email</label>
-    <div class="control">
-      <input id="email" class="input" type="text" placeholder="name@example.com" value="{{ email }}">
-    </div>
-  </div>
-
-  {% endif %}
 
   <!-- Submit button -->
   <div class="field is-grouped is-grouped-centered  mt-4">
@@ -107,11 +110,10 @@
     </div>
   </div>
 
-</form>
-
-          <!-- Message area -->
-          <div id="payment-message" class="notification is-hidden mt-4"></div>
-        </div>
+               <!-- Message area -->
+              <div id="payment-message" class="notification is-hidden mt-4"></div>
+            </div>
+          </form>
       </div>
     </div>
   </div>

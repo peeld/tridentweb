@@ -239,6 +239,16 @@ def purchase_event(request, event_id):
     discounted_price = base_price * (Decimal('1') - discount / Decimal('100'))
     total_display = f"${discounted_price:.2f}"
 
+    # --- Handle login submission ---
+    if action == "login":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+        else:
+            login_error = "Invalid Credentials"
+
     if action == "continue":
         # Store chosen data in session and redirect to payment
         request.session["purchase_data"] = {
