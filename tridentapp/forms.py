@@ -4,6 +4,8 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.template.loader import render_to_string
+
 import boto3
 
 class RegisterForm(UserCreationForm):
@@ -17,8 +19,11 @@ class RegisterForm(UserCreationForm):
 class SESEmailPasswordResetForm(PasswordResetForm):
     def send_mail(self, subject_template_name, email_template_name,
                   context, from_email, to_email, html_email_template_name=None):
-        subject = self.render_mail(subject_template_name, context).strip()
-        body = self.render_mail(email_template_name, context)
+        # Render subject and body from templates
+        subject = render_to_string(subject_template_name, context)
+        subject = ''.join(subject.splitlines())  # Remove newlines
+
+        body = render_to_string(email_template_name, context)
 
         ses_client = boto3.client(
             "ses",
